@@ -23,6 +23,8 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="server.p12" />
+    <EmbeddedResource Include="Services\Transport\Tcp\test_certificates\**\*.pem" />
+    <EmbeddedResource Include="Services\Transport\Tcp\test_certificates\**\*.p12" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TestConfigs\*.yaml">
