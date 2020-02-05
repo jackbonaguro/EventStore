@@ -284,7 +284,9 @@ namespace EventStore.ClusterNode {
 				.WithChunkInitialReaderCount(options.ChunkInitialReaderCount)
 				.WithInitializationThreads(options.InitializationThreads)
 				.WithMaxAutoMergeIndexLevel(options.MaxAutoMergeIndexLevel)
-				.WithMaxAppendSize(options.MaxAppendSize);
+				.WithMaxAppendSize(options.MaxAppendSize)
+				.WithSslValidateMasterNode(options.SslValidateMasterNode)
+				.WithSslValidateSlaveNode(options.SslValidateSlaveNode);
 
 			if (options.GossipSeed.Length > 0)
 				builder.WithGossipSeeds(options.GossipSeed);
@@ -318,8 +320,6 @@ namespace EventStore.ClusterNode {
 				builder.WithUnsafeDisableFlushToDisk();
 			if (options.BetterOrdering)
 				builder.WithBetterOrdering();
-			if (options.SslValidateServer)
-				builder.ValidateSslServer();
 			if (options.UseInternalSsl)
 				builder.EnableSsl();
 			if (options.DisableInsecureTCP)

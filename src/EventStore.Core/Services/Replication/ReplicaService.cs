@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography.X509Certificates;
 using EventStore.Common.Log;
 using EventStore.Common.Utils;
 using EventStore.Core.Authentication;
@@ -37,6 +38,7 @@ namespace EventStore.Core.Services.Replication {
 		private readonly bool _useSsl;
 		private readonly string _sslTargetHost;
 		private readonly bool _sslValidateServer;
+		private readonly X509CertificateCollection _sslClientCertificates;
 		private readonly TimeSpan _heartbeatTimeout;
 		private readonly TimeSpan _heartbeatInterval;
 
@@ -54,6 +56,7 @@ namespace EventStore.Core.Services.Replication {
 			bool useSsl,
 			string sslTargetHost,
 			bool sslValidateServer,
+			X509CertificateCollection sslClientCertificates,
 			TimeSpan heartbeatTimeout,
 			TimeSpan heartbeatInterval) {
 			Ensure.NotNull(publisher, "publisher");
@@ -74,6 +77,7 @@ namespace EventStore.Core.Services.Replication {
 			_useSsl = useSsl;
 			_sslTargetHost = sslTargetHost;
 			_sslValidateServer = sslValidateServer;
+			_sslClientCertificates = sslClientCertificates;
 			_heartbeatTimeout = heartbeatTimeout;
 			_heartbeatInterval = heartbeatInterval;
 
@@ -155,6 +159,7 @@ namespace EventStore.Core.Services.Replication {
 				_useSsl,
 				_sslTargetHost,
 				_sslValidateServer,
+				_sslClientCertificates,
 				_networkSendQueue,
 				_authProvider,
 				_heartbeatInterval,

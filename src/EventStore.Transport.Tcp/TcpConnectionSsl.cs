@@ -20,6 +20,7 @@ namespace EventStore.Transport.Tcp {
 			IPEndPoint remoteEndPoint,
 			string targetHost,
 			bool validateServer,
+			X509CertificateCollection clientCertificates,
 			TcpClientConnector connector,
 			TimeSpan connectionTimeout,
 			Action<ITcpConnection> onConnectionEstablished,
@@ -32,7 +33,7 @@ namespace EventStore.Transport.Tcp {
 					connection.InitClientSocket(socket);
 				},
 				(_, socket) => {
-					connection.InitSslStream(targetHost, validateServer, verbose);
+					connection.InitSslStream(targetHost, validateServer, clientCertificates, verbose);
 					if (onConnectionEstablished != null)
 						onConnectionEstablished(connection);
 				},
@@ -49,10 +50,11 @@ namespace EventStore.Transport.Tcp {
 			Socket socket,
 			string targetHost,
 			bool validateServer,
+			X509CertificateCollection clientCertificates,
 			bool verbose) {
 			var connection = new TcpConnectionSsl(connectionId, remoteEndPoint, verbose);
 			connection.InitClientSocket(socket);
-			connection.InitSslStream(targetHost, validateServer, verbose);
+			connection.InitSslStream(targetHost, validateServer, clientCertificates, verbose);
 			return connection;
 		}
 
@@ -60,10 +62,11 @@ namespace EventStore.Transport.Tcp {
 			IPEndPoint remoteEndPoint,
 			Socket socket,
 			X509Certificate certificate,
+			bool validateClient,
 			bool verbose) {
 			Ensure.NotNull(certificate, "certificate");
 			var connection = new TcpConnectionSsl(connectionId, remoteEndPoint, verbose);
-			connection.InitServerSocket(socket, certificate, verbose);
+			connection.InitServerSocket(socket, certificate, validateClient, verbose);
 			return connection;
 		}
 
@@ -106,6 +109,7 @@ namespace EventStore.Transport.Tcp {
 		private bool _isAuthenticated;
 		private int _sendingBytes;
 		private bool _validateServer;
+		private bool _validateClient;
 		private readonly byte[] _receiveBuffer = new byte[TcpConnection.BufferManager.ChunkSize];
 
 		private TcpConnectionSsl(Guid connectionId, IPEndPoint remoteEndPoint, bool verbose) : base(remoteEndPoint) {
@@ -115,12 +119,14 @@ namespace EventStore.Transport.Tcp {
 			_verbose = verbose;
 		}
 
-		private void InitServerSocket(Socket socket, X509Certificate certificate, bool verbose) {
+		private void InitServerSocket(Socket socket, X509Certificate certificate, bool validateClient, bool verbose) {
 			Ensure.NotNull(certificate, "certificate");
 
 			InitConnectionBase(socket);
 			if (verbose)
 				Console.WriteLine("TcpConnectionSsl::InitClientSocket({0}, L{1})", RemoteEndPoint, LocalEndPoint);
+
+			_validateClient = validateClient;
 
 			lock (_streamLock) {
 				try {
@@ -134,7 +140,7 @@ namespace EventStore.Transport.Tcp {
 				}
 
 				try {
-					_sslStream = new SslStream(new NetworkStream(socket, true), false);
+					_sslStream = new SslStream(new NetworkStream(socket, true), false, ValidateClientCertificate, null);
 				} catch (IOException exc) {
 					Log.DebugException(exc, "[S{remoteEndPoint}, L{localEndPoint}]: IOException on NetworkStream. The socket has already been disposed.", RemoteEndPoint,
 						LocalEndPoint);
@@ -143,7 +149,7 @@ namespace EventStore.Transport.Tcp {
 
 				try {
 					var enabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls13;
-					_sslStream.BeginAuthenticateAsServer(certificate, false, enabledSslProtocols, true,
+					_sslStream.BeginAuthenticateAsServer(certificate, validateClient, enabledSslProtocols, false,
 						OnEndAuthenticateAsServer, _sslStream);
 				} catch (AuthenticationException exc) {
 					Log.InfoException(exc,
@@ -191,7 +197,7 @@ namespace EventStore.Transport.Tcp {
 			_socket = socket;
 		}
 
-		private void InitSslStream(string targetHost, bool validateServer, bool verbose) {
+		private void InitSslStream(string targetHost, bool validateServer, X509CertificateCollection clientCertificates, bool verbose) {
 			Ensure.NotNull(targetHost, "targetHost");
 			InitConnectionBase(_socket);
 			if (verbose)
@@ -219,7 +225,7 @@ namespace EventStore.Transport.Tcp {
 				}
 
 				try {
-					_sslStream.BeginAuthenticateAsClient(targetHost, OnEndAuthenticateAsClient, _sslStream);
+					_sslStream.BeginAuthenticateAsClient(targetHost, clientCertificates, false, OnEndAuthenticateAsClient, _sslStream);
 				} catch (AuthenticationException exc) {
 					Log.InfoException(exc,
 						"[S{remoteEndPoint}, L{localEndPoint}]: Authentication exception on BeginAuthenticateAsClient.",
@@ -273,6 +279,18 @@ namespace EventStore.Transport.Tcp {
 			Log.Error("[S{remoteEndPoint}, L{localEndPoint}]: Certificate error: {e}", RemoteEndPoint, LocalEndPoint,
 				sslPolicyErrors);
 			// Do not allow this client to communicate with unauthenticated servers. 
+			return false;
+		}
+
+		public bool ValidateClientCertificate(object sender, X509Certificate certificate, X509Chain chain,
+			SslPolicyErrors sslPolicyErrors) {
+			if (!_validateClient)
+				return true;
+
+			if (sslPolicyErrors == SslPolicyErrors.None)
+				return true;
+			Log.Error("[S{remoteEndPoint}, L{localEndPoint}]: Client certificate error: {e}", RemoteEndPoint, LocalEndPoint,
+				sslPolicyErrors);
 			return false;
 		}
 
