@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using EventStore.ClientAPI.ClientOperations;
@@ -165,6 +166,7 @@ namespace EventStore.ClientAPI.Internal {
 				_settings.UseSslConnection,
 				_settings.TargetHost,
 				_settings.ValidateServer,
+				_settings.ClientCertificate != null ? new X509Certificate2Collection(_settings.ClientCertificate) : null,
 				_settings.ClientConnectionTimeout,
 				(connection, package) => EnqueueMessage(new HandleTcpPackageMessage(connection, package)),
 				(connection, exc) => EnqueueMessage(new TcpConnectionErrorMessage(connection, exc)),
