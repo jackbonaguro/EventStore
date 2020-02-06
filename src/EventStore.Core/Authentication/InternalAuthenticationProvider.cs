@@ -1,4 +1,5 @@
 using System;
+using System.Security.Cryptography.X509Certificates;
 using System.Security.Principal;
 using EventStore.Common.Log;
 using EventStore.Common.Utils;
@@ -29,7 +30,14 @@ namespace EventStore.Core.Authentication {
 		public void Authenticate(AuthenticationRequest authenticationRequest) {
 			Tuple<string, IPrincipal> cached;
 			if (_userPasswordsCache.TryGet(authenticationRequest.Name, out cached)) {
-				AuthenticateWithPassword(authenticationRequest, cached.Item1, cached.Item2);
+				if (authenticationRequest is PasswordAuthenticationRequest passwordAuthenticationRequest) {
+					AuthenticateWithPassword(passwordAuthenticationRequest, cached.Item1, cached.Item2);
+				} else if (authenticationRequest is ClientCertificateAuthenticationRequest
+					clientCertificateAuthenticationRequest) {
+					AuthenticateWithClientCertificate(clientCertificateAuthenticationRequest, cached.Item2);
+				} else {
+					authenticationRequest.Error();
+				}
 			} else {
 				var userStreamId = "$user-" + authenticationRequest.Name;
 				_ioDispatcher.ReadBackward(userStreamId, -1, 1, false, SystemAccount.Principal,
@@ -69,14 +77,20 @@ namespace EventStore.Core.Authentication {
 							"The account is disabled.");
 					authenticationRequest.Unauthorized();
 				} else {
-					AuthenticateWithPasswordHash(authenticationRequest, userData);
+					if (authenticationRequest is PasswordAuthenticationRequest passwordAuthenticationRequest) {
+						AuthenticateWithPasswordHash(passwordAuthenticationRequest, userData);
+					} else if (authenticationRequest is ClientCertificateAuthenticationRequest clientCertificateAuthenticationRequest) {
+						AuthenticateWithClientCertificate(clientCertificateAuthenticationRequest, CreatePrincipal(userData));
+					} else {
+						authenticationRequest.Error();
+					}
 				}
 			} catch {
 				authenticationRequest.Unauthorized();
 			}
 		}
 
-		private void AuthenticateWithPasswordHash(AuthenticationRequest authenticationRequest, UserData userData) {
+		private void AuthenticateWithPasswordHash(PasswordAuthenticationRequest authenticationRequest, UserData userData) {
 			if (!_passwordHashAlgorithm.Verify(authenticationRequest.SuppliedPassword, userData.Hash, userData.Salt)) {
 				if (_logFailedAuthenticationAttempts)
 					Log.Warn("Authentication Failed for {id}: {reason}", authenticationRequest.Id,
@@ -103,7 +117,7 @@ namespace EventStore.Core.Authentication {
 			_userPasswordsCache.Put(loginName, Tuple.Create(password, principal));
 		}
 
-		private void AuthenticateWithPassword(AuthenticationRequest authenticationRequest, string correctPassword,
+		private void AuthenticateWithPassword(PasswordAuthenticationRequest authenticationRequest, string correctPassword,
 			IPrincipal principal) {
 			if (authenticationRequest.SuppliedPassword != correctPassword) {
 				if (_logFailedAuthenticationAttempts)
@@ -114,6 +128,18 @@ namespace EventStore.Core.Authentication {
 			}
 
 			authenticationRequest.Authenticated(principal);
+		}
+
+		private void AuthenticateWithClientCertificate(ClientCertificateAuthenticationRequest authenticationRequest, IPrincipal principal) {
+			using X509Chain chain = new X509Chain { ChainPolicy = { RevocationMode = X509RevocationMode.NoCheck } };
+			if (chain.Build(new X509Certificate2(authenticationRequest.SuppliedClientCertificate))) {
+				authenticationRequest.Authenticated(principal);
+			} else {
+				if (_logFailedAuthenticationAttempts)
+					Log.Warn("Authentication Failed for {id}: {reason}", authenticationRequest.Id,
+						"Invalid client certificate provided.");
+				authenticationRequest.Unauthorized();
+			}
 		}
 
 		public void Handle(InternalAuthenticationProviderMessages.ResetPasswordCache message) {

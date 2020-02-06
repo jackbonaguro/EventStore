@@ -26,7 +26,7 @@ namespace EventStore.Core.Tests.Authentication {
 		}
 	}
 
-	class TestAuthenticationRequest : AuthenticationRequest {
+	class TestAuthenticationRequest : PasswordAuthenticationRequest {
 		private readonly Action _unauthorized;
 		private readonly Action<IPrincipal> _authenticated;
 		private readonly Action _error;

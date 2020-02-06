@@ -73,7 +73,7 @@ namespace EventStore.Core.Services.Transport.Grpc {
 			}
 		}
 
-		private class GrpcBasicAuthenticationRequest : AuthenticationRequest {
+		private class GrpcBasicAuthenticationRequest : PasswordAuthenticationRequest {
 			private readonly TaskCompletionSource<IPrincipal> _principalSource;
 
 			public GrpcBasicAuthenticationRequest(

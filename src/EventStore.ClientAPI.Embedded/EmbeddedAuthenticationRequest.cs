@@ -4,7 +4,7 @@ using EventStore.ClientAPI.Exceptions;
 using EventStore.Core.Authentication;
 
 namespace EventStore.ClientAPI.Embedded {
-	internal class EmbeddedAuthenticationRequest : AuthenticationRequest {
+	internal class EmbeddedAuthenticationRequest : PasswordAuthenticationRequest {
 		private readonly Action<IPrincipal> _onAuthenticated;
 		private readonly Action<Exception> _setException;
 

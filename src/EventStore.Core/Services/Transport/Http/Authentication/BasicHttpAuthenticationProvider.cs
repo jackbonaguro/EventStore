@@ -45,7 +45,7 @@ namespace EventStore.Core.Services.Transport.Http.Authentication {
 		}
 
 
-		private class HttpBasicAuthenticationRequest : AuthenticationRequest {
+		private class HttpBasicAuthenticationRequest : PasswordAuthenticationRequest {
 			private readonly BasicHttpAuthenticationProvider _basicHttpAuthenticationProvider;
 			private readonly IncomingHttpRequestMessage _message;
 

@@ -12,6 +12,7 @@ using EventStore.Core.Bus;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.TimerService;
+using EventStore.Core.Services.UserManagement;
 using EventStore.Transport.Tcp;
 using EventStore.Transport.Tcp.Framing;
 using EventStore.Core.Settings;
@@ -69,9 +70,12 @@ namespace EventStore.Core.Services.Transport.Tcp {
 		private readonly IAuthenticationProvider _authProvider;
 		private UserCredentials _defaultUser;
 		private TcpServiceType _serviceType;
+		private TcpSecurityType _securityType;
+		private X509Certificate2 _clientCertificate;
 
 		public TcpConnectionManager(string connectionName,
 			TcpServiceType serviceType,
+			TcpSecurityType securityType,
 			ITcpDispatcher dispatcher,
 			IPublisher publisher,
 			ITcpConnection openedConnection,
@@ -92,6 +96,7 @@ namespace EventStore.Core.Services.Transport.Tcp {
 			ConnectionName = connectionName;
 
 			_serviceType = serviceType;
+			_securityType = securityType;
 			_tcpEnvelope = new SendOverTcpEnvelope(this, networkSendQueue);
 			_publisher = publisher;
 			_dispatcher = dispatcher;
@@ -114,6 +119,13 @@ namespace EventStore.Core.Services.Transport.Tcp {
 			if (_connection.IsClosed) {
 				OnConnectionClosed(_connection, SocketError.Success);
 				return;
+			}
+
+			if (_securityType == TcpSecurityType.Secure) {
+				var sslConnection = (TcpConnectionSsl)_connection;
+				sslConnection.SslConnectionEstablished += (conn, clientCertificate) => {
+					_clientCertificate = clientCertificate;
+				};
 			}
 
 			ScheduleHeartbeat(0);
@@ -292,7 +304,7 @@ namespace EventStore.Core.Services.Transport.Tcp {
 					else {
 						var defaultUser = new UserCredentials(package.Login, package.Password, null);
 						Interlocked.Exchange(ref _defaultUser, defaultUser);
-						_authProvider.Authenticate(new TcpDefaultAuthRequest(this, package.CorrelationId, defaultUser));
+						_authProvider.Authenticate(new TcpDefaultPasswordAuthRequest(this, package.CorrelationId, defaultUser));
 					}
 
 					break;
@@ -302,13 +314,19 @@ namespace EventStore.Core.Services.Transport.Tcp {
 					if ((package.Flags & TcpFlags.TrustedWrite) != 0) {
 						UnwrapAndPublishPackage(package, UserManagement.SystemAccount.Principal, null, null);
 					} else if ((package.Flags & TcpFlags.Authenticated) != 0) {
-						_authProvider.Authenticate(new TcpAuthRequest(this, package, package.Login, package.Password));
+						_authProvider.Authenticate(new TcpPasswordAuthRequest(this, package, package.Login, package.Password));
 					} else if (defaultUser != null) {
 						if (defaultUser.User != null)
 							UnwrapAndPublishPackage(package, defaultUser.User, defaultUser.Login, defaultUser.Password);
-						else
-							_authProvider.Authenticate(new TcpAuthRequest(this, package, defaultUser.Login,
-								defaultUser.Password));
+						else {
+							if (_serviceType == TcpServiceType.External && _clientCertificate?.GetNameInfo(X509NameType.SimpleName, false) != null) {
+								var login = _clientCertificate.GetNameInfo(X509NameType.SimpleName, false);
+								_authProvider.Authenticate(new TcpClientCertificateAuthRequest(this,
+									package.CorrelationId, login, _clientCertificate));
+							} else {
+								_authProvider.Authenticate(new TcpPasswordAuthRequest(this, package, defaultUser.Login, defaultUser.Password));
+							}
+						}
 					} else {
 						UnwrapAndPublishPackage(package, null, null, null);
 					}
@@ -452,11 +470,11 @@ namespace EventStore.Core.Services.Transport.Tcp {
 			}
 		}
 
-		private class TcpAuthRequest : AuthenticationRequest {
+		private class TcpPasswordAuthRequest : PasswordAuthenticationRequest {
 			private readonly TcpConnectionManager _manager;
 			private readonly TcpPackage _package;
 
-			public TcpAuthRequest(TcpConnectionManager manager, TcpPackage package, string login, string password)
+			public TcpPasswordAuthRequest(TcpConnectionManager manager, TcpPackage package, string login, string password)
 				: base($"(TCP) {manager.RemoteEndPoint}", login, password) {
 				_manager = manager;
 				_package = package;
@@ -479,13 +497,41 @@ namespace EventStore.Core.Services.Transport.Tcp {
 			}
 		}
 
+		private class TcpClientCertificateAuthRequest : ClientCertificateAuthenticationRequest {
+			private readonly TcpConnectionManager _manager;
+			private readonly Guid _correlationId;
+			private readonly string _login;
 
-		private class TcpDefaultAuthRequest : AuthenticationRequest {
+			public TcpClientCertificateAuthRequest(TcpConnectionManager manager, Guid correlationId, string login, X509Certificate2 clientCertificate)
+				: base($"(TCP) {manager.RemoteEndPoint}", login , clientCertificate) {
+				_manager = manager;
+				_correlationId = correlationId;
+				_login = login;
+			}
+
+			public override void Unauthorized() {
+				_manager.ReplyNotAuthenticated(_correlationId, "Unauthorized");
+			}
+
+			public override void Authenticated(IPrincipal principal) {
+				_manager.ReplyAuthenticated(_correlationId, new UserCredentials(_login, null, principal), principal);
+			}
+
+			public override void Error() {
+				_manager.ReplyNotAuthenticated(_correlationId, "Internal Server Error");
+			}
+
+			public override void NotReady() {
+				_manager.ReplyNotAuthenticated(_correlationId, "Server not yet ready");
+			}
+		}
+
+		private class TcpDefaultPasswordAuthRequest : PasswordAuthenticationRequest {
 			private readonly TcpConnectionManager _manager;
 			private readonly Guid _correlationId;
 			private readonly UserCredentials _userCredentials;
 
-			public TcpDefaultAuthRequest(TcpConnectionManager manager, Guid correlationId,
+			public TcpDefaultPasswordAuthRequest(TcpConnectionManager manager, Guid correlationId,
 				UserCredentials userCredentials)
 				: base($"(TCP) {manager.RemoteEndPoint}", userCredentials.Login, userCredentials.Password) {
 				_manager = manager;
