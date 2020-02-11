@@ -286,7 +286,7 @@ namespace EventStore.ClusterNode {
 				.WithMaxAutoMergeIndexLevel(options.MaxAutoMergeIndexLevel)
 				.WithMaxAppendSize(options.MaxAppendSize)
 				.WithSslValidateMasterNode(options.SslValidateMasterNode)
-				.WithSslValidateSlaveNode(options.SslValidateSlaveNode);
+				.WithSslValidateReplicas(options.SslValidateReplicas);
 
 			if (options.GossipSeed.Length > 0)
 				builder.WithGossipSeeds(options.GossipSeed);

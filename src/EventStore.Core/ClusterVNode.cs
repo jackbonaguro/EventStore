@@ -376,7 +376,7 @@ namespace EventStore.Core {
 							TcpServiceType.Internal, TcpSecurityType.Secure,
 							new InternalTcpDispatcher(),
 							vNodeSettings.IntTcpHeartbeatInterval, vNodeSettings.IntTcpHeartbeatTimeout,
-							_internalAuthenticationProvider, vNodeSettings.Certificate, vNodeSettings.SslValidateSlaveNode,
+							_internalAuthenticationProvider, vNodeSettings.Certificate, vNodeSettings.SslValidateReplicas,
 							ESConsts.UnrestrictedPendingSendBytes,
 							ESConsts.MaxConnectionQueueSize);
 						_mainBus.Subscribe<SystemMessage.SystemInit>(intSecTcpService);
