@@ -84,6 +84,7 @@ namespace EventStore.Core {
 		protected bool _gossipOnPublic;
 		protected TimeSpan _gossipInterval;
 		protected TimeSpan _gossipAllowedTimeDifference;
+		protected TimeSpan _deadMemberRemovalTimeout;
 		protected TimeSpan _gossipTimeout;
 		protected GossipAdvertiseInfo _gossipAdvertiseInfo;
 
@@ -189,6 +190,7 @@ namespace EventStore.Core {
 			_sslValidateServer = Opts.SslValidateServerDefault;
 
 			_statsPeriod = TimeSpan.FromSeconds(Opts.StatsPeriodDefault);
+			_deadMemberRemovalTimeout = TimeSpan.FromMinutes(Opts.DeadMemberRemovalTimeoutDefault);
 
 			_authenticationProviderFactory = new InternalAuthenticationProviderFactory();
 			_disableFirstLevelHttpAuthorization = Opts.DisableFirstLevelHttpAuthorizationDefault;
@@ -754,7 +756,18 @@ namespace EventStore.Core {
 			_gossipAllowedTimeDifference = gossipAllowedDifference;
 			return this;
 		}
+		
 
+		/// <summary>
+		/// Sets the time for a cluster to drop down a node
+		/// </summary>
+		/// <param name="deadMemberRemovalTimeout">The </param>
+		/// <returns>A <see cref="VNodeBuilder"/> with the options set</returns>
+		public VNodeBuilder WithDeadMemberRemovalTimeout(TimeSpan deadMemberRemovalTimeout) {
+			_deadMemberRemovalTimeout = deadMemberRemovalTimeout;
+			return this;
+		}
+		
 		/// <summary>
 		/// Sets the gossip timeout
 		/// </summary>

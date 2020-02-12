@@ -317,6 +317,8 @@ namespace EventStore.ClusterNode {
 		[ArgDescription(Opts.DevDescr, Opts.AppGroup)]
 		public bool Dev { get; set; }
 
+		[ArgDescription(Opts.DeadMemberRemovalTimeoutDescr, Opts.ClusterGroup)]
+		public int DeadMemberRemovalPeriodMin { get; set; }
 		public ClusterNodeOptions() {
 			Config = "";
 			Help = Opts.ShowHelpDefault;
@@ -353,6 +355,7 @@ namespace EventStore.ClusterNode {
 
 			StatsPeriodSec = Opts.StatsPeriodDefault;
 
+			DeadMemberRemovalPeriodMin = Opts.DeadMemberRemovalTimeoutDefault;
 			CachedChunks = Opts.CachedChunksDefault;
 			ChunksCacheSize = Opts.ChunksCacheSizeDefault;
 

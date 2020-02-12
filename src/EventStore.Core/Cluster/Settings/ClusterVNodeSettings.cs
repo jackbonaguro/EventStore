@@ -60,6 +60,8 @@ namespace EventStore.Core.Cluster.Settings {
 		public readonly TimeSpan IntTcpHeartbeatInterval;
 		public readonly TimeSpan ExtTcpHeartbeatTimeout;
 		public readonly TimeSpan ExtTcpHeartbeatInterval;
+		public readonly TimeSpan DeadMemberRemovalTimeout;
+
 		public readonly int ConnectionPendingSendBytesThreshold;
 		public readonly int ConnectionQueueSizeThreshold;
 		public readonly bool UnsafeIgnoreHardDeletes;
