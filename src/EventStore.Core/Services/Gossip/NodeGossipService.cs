@@ -27,9 +27,10 @@ namespace EventStore.Core.Services.Gossip {
 			int nodePriority,
 			TimeSpan interval,
 			TimeSpan allowedTimeDifference,
+			TimeSpan deadMemberRemovalTimeout,
 			ITimeProvider timeProvider,
 			Func<MemberInfo[], MemberInfo> getNodeToGossipTo = null)
-			: base(bus, gossipSeedSource, nodeInfo, interval, allowedTimeDifference, timeProvider, getNodeToGossipTo) {
+			: base(bus, gossipSeedSource, nodeInfo, interval, allowedTimeDifference, deadMemberRemovalTimeout,timeProvider, getNodeToGossipTo) {
 			Ensure.NotNull(writerCheckpoint, nameof(writerCheckpoint));
 			Ensure.NotNull(chaserCheckpoint, nameof(chaserCheckpoint));
 			Ensure.NotNull(epochManager, nameof(epochManager));

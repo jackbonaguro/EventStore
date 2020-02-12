@@ -681,7 +681,7 @@ namespace EventStore.Core {
 
 				var gossip = new NodeGossipService(_mainQueue, gossipSeedSource, gossipInfo, db.Config.WriterCheckpoint,
 					db.Config.ChaserCheckpoint, epochManager, () => readIndex.LastIndexedPosition,
-					vNodeSettings.NodePriority, vNodeSettings.GossipInterval,
+					vNodeSettings.NodePriority, vNodeSettings.GossipInterval, vNodeSettings.DeadMemberRemovalTimeout,
 					vNodeSettings.GossipAllowedTimeDifference,
 					_timeProvider);
 				_mainBus.Subscribe<SystemMessage.SystemInit>(gossip);

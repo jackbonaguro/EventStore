@@ -319,6 +319,7 @@ namespace EventStore.ClusterNode {
 
 		[ArgDescription(Opts.DeadMemberRemovalTimeoutDescr, Opts.ClusterGroup)]
 		public int DeadMemberRemovalPeriodMin { get; set; }
+		
 		public ClusterNodeOptions() {
 			Config = "";
 			Help = Opts.ShowHelpDefault;

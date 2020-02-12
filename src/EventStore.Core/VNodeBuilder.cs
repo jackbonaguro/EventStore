@@ -1365,6 +1365,7 @@ namespace EventStore.Core {
 				_gossipOnPublic,
 				_gossipInterval,
 				_gossipAllowedTimeDifference,
+				_deadMemberRemovalTimeout,
 				_gossipTimeout,
 				_intTcpHeartbeatTimeout,
 				_intTcpHeartbeatInterval,
