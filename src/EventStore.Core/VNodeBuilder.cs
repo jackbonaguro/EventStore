@@ -190,7 +190,6 @@ namespace EventStore.Core {
 			_sslValidateServer = Opts.SslValidateServerDefault;
 
 			_statsPeriod = TimeSpan.FromSeconds(Opts.StatsPeriodDefault);
-			_deadMemberRemovalTimeout = TimeSpan.FromMinutes(Opts.DeadMemberRemovalTimeoutDefault);
 
 			_authenticationProviderFactory = new InternalAuthenticationProviderFactory();
 			_disableFirstLevelHttpAuthorization = Opts.DisableFirstLevelHttpAuthorizationDefault;
@@ -239,6 +238,7 @@ namespace EventStore.Core {
 			_readOnlyReplica = Opts.ReadOnlyReplicaDefault;
 			_unsafeAllowSurplusNodes = Opts.UnsafeAllowSurplusNodesDefault;
 			_maxAppendSize = Opts.MaxAppendSizeDefault;
+			_deadMemberRemovalTimeout = TimeSpan.FromMinutes(Opts.DeadMemberRemovalTimeoutDefault);
 		}
 
 		protected VNodeBuilder WithSingleNodeSettings() {
@@ -759,9 +759,9 @@ namespace EventStore.Core {
 		
 
 		/// <summary>
-		/// Sets the time for a cluster to drop down a node
+		/// Sets the time for a cluster to drop down an isolated node
 		/// </summary>
-		/// <param name="deadMemberRemovalTimeout">The </param>
+		/// <param name="deadMemberRemovalTimeout">The dead member removal timeout</param>
 		/// <returns>A <see cref="VNodeBuilder"/> with the options set</returns>
 		public VNodeBuilder WithDeadMemberRemovalTimeout(TimeSpan deadMemberRemovalTimeout) {
 			_deadMemberRemovalTimeout = deadMemberRemovalTimeout;
@@ -1365,12 +1365,12 @@ namespace EventStore.Core {
 				_gossipOnPublic,
 				_gossipInterval,
 				_gossipAllowedTimeDifference,
-				_deadMemberRemovalTimeout,
 				_gossipTimeout,
 				_intTcpHeartbeatTimeout,
 				_intTcpHeartbeatInterval,
 				_extTcpHeartbeatTimeout,
 				_extTcpHeartbeatInterval,
+				_deadMemberRemovalTimeout,
 				!_skipVerifyDbHashes,
 				_maxMemtableSize,
 				_hashCollisionReadLimit,
