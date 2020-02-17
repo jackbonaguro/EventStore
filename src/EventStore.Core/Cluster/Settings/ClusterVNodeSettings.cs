@@ -38,7 +38,7 @@ namespace EventStore.Core.Cluster.Settings {
 
 		public readonly int NodePriority;
 
-		public readonly bool UseSsl;
+		public readonly bool DisableInternalTls;
 		public readonly bool DisableInsecureTCP;
 		public readonly string SslTargetHost;
 
@@ -108,7 +108,7 @@ namespace EventStore.Core.Cluster.Settings {
 			int commitAckCount,
 			TimeSpan prepareTimeout,
 			TimeSpan commitTimeout,
-			bool useSsl,
+			bool disableInternalTls,
 			bool disableInsecureTCP,
 			string sslTargetHost,
 			TimeSpan statsPeriod,
@@ -182,7 +182,7 @@ namespace EventStore.Core.Cluster.Settings {
 				throw new ArgumentException(
 					"Either DNS Discovery must be disabled (and seeds specified), or a cluster DNS name must be provided.");
 
-			if (useSsl)
+			if (!disableInternalTls)
 				Ensure.NotNull(sslTargetHost, "sslTargetHost");
 
 			NodeInfo = new VNodeInfo(instanceId, debugIndex,
@@ -214,7 +214,7 @@ namespace EventStore.Core.Cluster.Settings {
 			PrepareTimeout = prepareTimeout;
 			CommitTimeout = commitTimeout;
 
-			UseSsl = useSsl;
+			DisableInternalTls = disableInternalTls;
 			DisableInsecureTCP = disableInsecureTCP;
 			SslTargetHost = sslTargetHost;
 
@@ -279,7 +279,7 @@ namespace EventStore.Core.Cluster.Settings {
 			$"GossipSeeds: {string.Join(",", GossipSeeds.Select(x => x.ToString()))}\n" +
 			$"ClusterNodeCount: {ClusterNodeCount}\n" + $"MinFlushDelay: {MinFlushDelay}\n" +
 			$"PrepareAckCount: {PrepareAckCount}\n" + $"CommitAckCount: {CommitAckCount}\n" +
-			$"PrepareTimeout: {PrepareTimeout}\n" + $"CommitTimeout: {CommitTimeout}\n" + $"UseSsl: {UseSsl}\n" +
+			$"PrepareTimeout: {PrepareTimeout}\n" + $"CommitTimeout: {CommitTimeout}\n" + $"DisableInternalTls: {DisableInternalTls}\n" +
 			$"SslTargetHost: {SslTargetHost}\n" +
 			$"StatsPeriod: {StatsPeriod}\n" + $"StatsStorage: {StatsStorage}\n" +
 			$"AuthenticationProviderFactory Type: {AuthenticationProviderFactory.GetType()}\n" +

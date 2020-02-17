@@ -220,8 +220,8 @@ namespace EventStore.ClusterNode {
 		[ArgDescription(Opts.CertificatePasswordDescr, Opts.CertificatesGroup)]
 		public string CertificatePassword { get; set; }
 
-		[ArgDescription(Opts.UseInternalSslDescr, Opts.InterfacesGroup)]
-		public bool UseInternalSsl { get; set; }
+		[ArgDescription(Opts.DisableInternalTlsDescr, Opts.InterfacesGroup)]
+		public bool DisableInternalTls { get; set; }
 
 		[ArgDescription(Opts.DisableInsecureTCPDescr, Opts.InterfacesGroup)]
 		public bool DisableInsecureTCP { get; set; }
@@ -389,7 +389,7 @@ namespace EventStore.ClusterNode {
 			CertificateFile = Opts.CertificateFileDefault;
 			CertificatePassword = Opts.CertificatePasswordDefault;
 
-			UseInternalSsl = Opts.UseInternalSslDefault;
+			DisableInternalTls = Opts.DisableInternalTlsDefault;
 			DisableInsecureTCP = Opts.DisableInsecureTCPDefault;
 			SslTargetHost = Opts.SslTargetHostDefault;
 
