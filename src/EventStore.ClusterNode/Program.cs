@@ -190,17 +190,6 @@ namespace EventStore.ClusterNode {
 			var prepareCount = options.PrepareCount > quorumSize ? options.PrepareCount : quorumSize;
 			var commitCount = options.CommitCount > quorumSize ? options.CommitCount : quorumSize;
 			Log.Info("Quorum size set to {quorum}", prepareCount);
-			if (options.DisableInsecureTCP) {
-				if (options.DisableInternalTls) {
-					throw new Exception(
-						"You have chosen to disable the insecure TCP ports and secure internal communication. The nodes in the cluster will not be able to communicate properly.");
-				}
-
-				if (extSecTcp == null || intSecTcp == null) {
-					throw new Exception(
-						"You have chosen to disable the insecure TCP ports and haven't setup the External or Internal Secure TCP Ports.");
-				}
-			}
 
 			if (!options.DisableInternalTls) {
 				if (ReferenceEquals(options.TlsTargetHost, Opts.TlsTargetHostDefault))
@@ -322,8 +311,6 @@ namespace EventStore.ClusterNode {
 				builder.DisableInternalTls();
 			if (options.DisableExternalTls)
 				builder.DisableExternalTls();
-			if (options.DisableInsecureTCP)
-				builder.DisableInsecureTCP();
 			if (!options.AdminOnExt)
 				builder.NoAdminOnPublicInterface();
 			if (!options.StatsOnExt)

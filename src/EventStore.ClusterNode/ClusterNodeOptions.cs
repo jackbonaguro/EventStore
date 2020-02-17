@@ -226,9 +226,6 @@ namespace EventStore.ClusterNode {
 		[ArgDescription(Opts.DisableExternalTlsDescr, Opts.InterfacesGroup)]
 		public bool DisableExternalTls { get; set; }
 
-		[ArgDescription(Opts.DisableInsecureTCPDescr, Opts.InterfacesGroup)]
-		public bool DisableInsecureTCP { get; set; }
-
 		[ArgDescription(Opts.TlsTargetHostDescr, Opts.InterfacesGroup)]
 		public string TlsTargetHost { get; set; }
 
@@ -394,7 +391,6 @@ namespace EventStore.ClusterNode {
 
 			DisableInternalTls = Opts.DisableInternalTlsDefault;
 			DisableExternalTls = Opts.DisableExternalTlsDefault;
-			DisableInsecureTCP = Opts.DisableInsecureTCPDefault;
 			TlsTargetHost = Opts.TlsTargetHostDefault;
 
 			AuthenticationType = Opts.AuthenticationTypeDefault;

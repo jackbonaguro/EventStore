@@ -333,7 +333,7 @@ namespace EventStore.Core {
 
 			{
 				// EXTERNAL TCP
-				if (!vNodeSettings.DisableInsecureTCP) {
+				if (_nodeInfo.ExternalTcp != null) {
 					var extTcpService = new TcpService(_mainQueue, _nodeInfo.ExternalTcp, _workersHandler,
 						TcpServiceType.External, TcpSecurityType.Normal, new ClientTcpDispatcher(),
 						vNodeSettings.ExtTcpHeartbeatInterval, vNodeSettings.ExtTcpHeartbeatTimeout,
@@ -343,7 +343,6 @@ namespace EventStore.Core {
 					_mainBus.Subscribe<SystemMessage.SystemStart>(extTcpService);
 					_mainBus.Subscribe<SystemMessage.BecomeShuttingDown>(extTcpService);
 				}
-
 				// EXTERNAL SECURE TCP
 				if (_nodeInfo.ExternalSecureTcp != null) {
 					var extSecTcpService = new TcpService(_mainQueue, _nodeInfo.ExternalSecureTcp, _workersHandler,
@@ -358,7 +357,7 @@ namespace EventStore.Core {
 
 				if (!isSingleNode) {
 					// INTERNAL TCP
-					if (!vNodeSettings.DisableInsecureTCP) {
+					if (_nodeInfo.InternalTcp != null) {
 						var intTcpService = new TcpService(_mainQueue, _nodeInfo.InternalTcp, _workersHandler,
 							TcpServiceType.Internal, TcpSecurityType.Normal,
 							new InternalTcpDispatcher(),
@@ -369,7 +368,6 @@ namespace EventStore.Core {
 						_mainBus.Subscribe<SystemMessage.SystemStart>(intTcpService);
 						_mainBus.Subscribe<SystemMessage.BecomeShuttingDown>(intTcpService);
 					}
-
 					// INTERNAL SECURE TCP
 					if (_nodeInfo.InternalSecureTcp != null) {
 						var intSecTcpService = new TcpService(_mainQueue, _nodeInfo.InternalSecureTcp, _workersHandler,

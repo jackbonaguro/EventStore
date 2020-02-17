@@ -339,9 +339,6 @@ namespace EventStore.Core.Util {
 		public const string DisableExternalTlsDescr = "Whether to disable secure external communication.";
 		public const bool DisableExternalTlsDefault = false;
 
-		public const string DisableInsecureTCPDescr = "Whether to disable insecure TCP communication";
-		public const bool DisableInsecureTCPDefault = false;
-
 		public const string TlsTargetHostDescr = "Target host of this node's TLS certificate.";
 		public static readonly string TlsTargetHostDefault = "n/a";
 

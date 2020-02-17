@@ -40,7 +40,6 @@ namespace EventStore.Core.Cluster.Settings {
 
 		public readonly bool DisableInternalTls;
 		public readonly bool DisableExternalTls;
-		public readonly bool DisableInsecureTCP;
 		public readonly string TlsTargetHost;
 
 		public readonly TimeSpan StatsPeriod;
@@ -111,7 +110,6 @@ namespace EventStore.Core.Cluster.Settings {
 			TimeSpan commitTimeout,
 			bool disableInternalTls,
 			bool disableExternalTls,
-			bool disableInsecureTCP,
 			string tlsTargetHost,
 			TimeSpan statsPeriod,
 			StatsStorage statsStorage,
@@ -218,7 +216,6 @@ namespace EventStore.Core.Cluster.Settings {
 
 			DisableInternalTls = disableInternalTls;
 			DisableExternalTls = disableExternalTls;
-			DisableInsecureTCP = disableInsecureTCP;
 			TlsTargetHost = tlsTargetHost;
 
 			StatsPeriod = statsPeriod;
