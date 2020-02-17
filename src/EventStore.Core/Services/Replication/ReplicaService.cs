@@ -36,7 +36,7 @@ namespace EventStore.Core.Services.Replication {
 
 		private readonly VNodeInfo _nodeInfo;
 		private readonly bool _useSsl;
-		private readonly string _sslTargetHost;
+		private readonly string _tlsTargetHost;
 		private readonly bool _sslValidateServer;
 		private readonly X509CertificateCollection _sslClientCertificates;
 		private readonly TimeSpan _heartbeatTimeout;
@@ -54,7 +54,7 @@ namespace EventStore.Core.Services.Replication {
 			IAuthenticationProvider authProvider,
 			VNodeInfo nodeInfo,
 			bool useSsl,
-			string sslTargetHost,
+			string tlsTargetHost,
 			bool sslValidateServer,
 			X509CertificateCollection sslClientCertificates,
 			TimeSpan heartbeatTimeout,
@@ -65,7 +65,7 @@ namespace EventStore.Core.Services.Replication {
 			Ensure.NotNull(networkSendQueue, "networkSendQueue");
 			Ensure.NotNull(authProvider, "authProvider");
 			Ensure.NotNull(nodeInfo, "nodeInfo");
-			if (useSsl) Ensure.NotNull(sslTargetHost, "sslTargetHost");
+			if (useSsl) Ensure.NotNull(tlsTargetHost, "tlsTargetHost");
 
 			_publisher = publisher;
 			_db = db;
@@ -75,7 +75,7 @@ namespace EventStore.Core.Services.Replication {
 
 			_nodeInfo = nodeInfo;
 			_useSsl = useSsl;
-			_sslTargetHost = sslTargetHost;
+			_tlsTargetHost = tlsTargetHost;
 			_sslValidateServer = sslValidateServer;
 			_sslClientCertificates = sslClientCertificates;
 			_heartbeatTimeout = heartbeatTimeout;
@@ -157,7 +157,7 @@ namespace EventStore.Core.Services.Replication {
 				masterEndPoint,
 				_connector,
 				_useSsl,
-				_sslTargetHost,
+				_tlsTargetHost,
 				_sslValidateServer,
 				_sslClientCertificates,
 				_networkSendQueue,
