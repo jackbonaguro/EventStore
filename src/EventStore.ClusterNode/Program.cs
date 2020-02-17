@@ -284,9 +284,7 @@ namespace EventStore.ClusterNode {
 				.WithChunkInitialReaderCount(options.ChunkInitialReaderCount)
 				.WithInitializationThreads(options.InitializationThreads)
 				.WithMaxAutoMergeIndexLevel(options.MaxAutoMergeIndexLevel)
-				.WithMaxAppendSize(options.MaxAppendSize)
-				.WithSslValidateMasterNode(options.SslValidateMasterNode)
-				.WithSslValidateSlaveNode(options.SslValidateSlaveNode);
+				.WithMaxAppendSize(options.MaxAppendSize);
 
 			if (options.GossipSeed.Length > 0)
 				builder.WithGossipSeeds(options.GossipSeed);

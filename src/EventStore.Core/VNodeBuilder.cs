@@ -69,8 +69,6 @@ namespace EventStore.Core {
 		protected bool _useSsl;
 		protected bool _disableInsecureTCP;
 		protected string _sslTargetHost;
-		protected bool _sslValidateMasterNode;
-		protected bool _sslValidateSlaveNode;
 
 		protected TimeSpan _statsPeriod;
 		protected StatsStorage _statsStorage;
@@ -187,8 +185,6 @@ namespace EventStore.Core {
 			_useSsl = Opts.UseInternalSslDefault;
 			_disableInsecureTCP = Opts.DisableInsecureTCPDefault;
 			_sslTargetHost = Opts.SslTargetHostDefault;
-			_sslValidateMasterNode = Opts.SslValidateMasterNodeDefault;
-			_sslValidateSlaveNode = Opts.SslValidateSlaveNodeDefault;
 
 			_statsPeriod = TimeSpan.FromSeconds(Opts.StatsPeriodDefault);
 
@@ -543,24 +539,6 @@ namespace EventStore.Core {
 		/// <returns>A <see cref="VNodeBuilder"/> with the options set</returns>
 		public VNodeBuilder WithSslTargetHost(string targetHost) {
 			_sslTargetHost = targetHost;
-			return this;
-		}
-
-		/// <summary>
-		/// Sets whether to validate the master node's certificate when connecting to it as a slave.
-		/// </summary>
-		/// <returns>A <see cref="VNodeBuilder"/> with the options set</returns>
-		public VNodeBuilder WithSslValidateMasterNode(bool sslValidateMasterNode) {
-			_sslValidateMasterNode = sslValidateMasterNode;
-			return this;
-		}
-
-		/// <summary>
-		/// Sets whether to require a valid certificate from the slave node when this node is master.
-		/// </summary>
-		/// <returns>A <see cref="VNodeBuilder"/> with the options set</returns>
-		public VNodeBuilder WithSslValidateSlaveNode(bool sslValidateSlaveNode) {
-			_sslValidateSlaveNode = sslValidateSlaveNode;
 			return this;
 		}
 
@@ -1351,8 +1329,6 @@ namespace EventStore.Core {
 				_useSsl,
 				_disableInsecureTCP,
 				_sslTargetHost,
-				_sslValidateMasterNode,
-				_sslValidateSlaveNode,
 				_statsPeriod,
 				_statsStorage,
 				_nodePriority,
