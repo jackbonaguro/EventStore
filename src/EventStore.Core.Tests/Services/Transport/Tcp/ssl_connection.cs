@@ -85,7 +85,7 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp {
 
 			Log.Info("Stopping listener...");
 			listener.Stop();
-			Log.Info("Closing client ssl connection...");
+			Log.Info("Closing client TLS connection...");
 			clientSsl.Close("Normal close.");
 			Log.Info("Checking received data...");
 			Assert.AreEqual(sent, received.ToArray());
