@@ -320,6 +320,8 @@ namespace EventStore.ClusterNode {
 				builder.WithBetterOrdering();
 			if (options.DisableInternalTls)
 				builder.DisableInternalTls();
+			if (options.DisableExternalTls)
+				builder.DisableExternalTls();
 			if (options.DisableInsecureTCP)
 				builder.DisableInsecureTCP();
 			if (!options.AdminOnExt)
