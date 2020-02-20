@@ -364,7 +364,7 @@ namespace EventStore.Core.Util {
 		public const string UnsafeAllowSurplusNodesDescr = "Allow more nodes than the cluster size to join the cluster as clones. (UNSAFE: can cause data loss if a clone is promoted as master)";
 		public static readonly bool UnsafeAllowSurplusNodesDefault = false;
 		
-		public const string DeadMemberRemovalTimeoutDescr = "Causes an isolated node to be drop by the cluster";
+		public const string DeadMemberRemovalTimeoutDescr = "The number of seconds a dead node will remain in the gossip before being pruned";
 		public const int DeadMemberRemovalTimeoutDefault = 30;
 
 		/*

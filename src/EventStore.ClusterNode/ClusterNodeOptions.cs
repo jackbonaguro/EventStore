@@ -353,10 +353,9 @@ namespace EventStore.ClusterNode {
 			GossipSeed = Opts.GossipSeedDefault;
 			ReadOnlyReplica = Opts.ReadOnlyReplicaDefault;
 			UnsafeAllowSurplusNodes = Opts.UnsafeAllowSurplusNodesDefault;
+			DeadMemberRemovalPeriodMin = Opts.DeadMemberRemovalTimeoutDefault;
 
 			StatsPeriodSec = Opts.StatsPeriodDefault;
-
-			DeadMemberRemovalPeriodMin = Opts.DeadMemberRemovalTimeoutDefault;
 			CachedChunks = Opts.CachedChunksDefault;
 			ChunksCacheSize = Opts.ChunksCacheSizeDefault;
 

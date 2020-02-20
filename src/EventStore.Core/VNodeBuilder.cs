@@ -759,9 +759,9 @@ namespace EventStore.Core {
 		
 
 		/// <summary>
-		/// Sets the time for a cluster to drop down an isolated node
+		/// Sets the period a dead node will remain in the gossip before being pruned
 		/// </summary>
-		/// <param name="deadMemberRemovalTimeout">The dead member removal timeout</param>
+		/// <param name="deadMemberRemovalTimeout">The period a dead node will remain in the gossip before being pruned</param>
 		/// <returns>A <see cref="VNodeBuilder"/> with the options set</returns>
 		public VNodeBuilder WithDeadMemberRemovalTimeout(TimeSpan deadMemberRemovalTimeout) {
 			_deadMemberRemovalTimeout = deadMemberRemovalTimeout;
